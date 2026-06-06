@@ -1,0 +1,27 @@
+schema: enpal-spec-driven
+
+# Project context (shown to AI when creating artifacts)
+context: |
+  Vite plugin for the Web Awesome design system
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always include a "Non-goals" section
+#     tasks:
+#       - Break tasks into chunks of max 2 hours
+
+# Per-skill instructions (optional)
+# Add project-specific guidance for each workflow skill.
+# The skill reads this at the start of each session.
+# Example:
+#   skills:
+#     explore: |
+#       Always consider our SDK-first architecture principle.
+#       Cross-subsystem operations belong in the orchestration layer.
+#     propose: |
+#       Proposals must include a rollback plan.
+#       Breaking changes require a migration path.

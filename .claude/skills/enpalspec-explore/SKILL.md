@@ -1,0 +1,219 @@
+---
+name: enpalspec-explore
+description: Enter explore mode - a thinking partner for exploring ideas, investigating problems, and clarifying requirements. Use when the user wants to think through something before or during a change.
+license: MIT
+compatibility: Requires enpalspec CLI.
+metadata:
+  author: enpalspec
+  version: "1.0"
+  generatedBy: "1.3.0"
+---
+
+Enter explore mode. The exploration document is the primary medium — observations, questions, and answers all live there. Chat is a companion that summarises findings and signals progress.
+
+**Steps**
+
+1. **Load project guidance**
+
+   ```bash
+   enpalspec guidance explore --json
+   ```
+   If the command succeeds: apply `context` as binding project constraints throughout (tech stack, platform requirements, conventions — do NOT include in the exploration document); apply `instructions` as workflow-specific overrides if non-null. If it fails or returns null fields, continue normally.
+
+2. **Derive the topic**
+
+   **At the very start of every session**, handle topic derivation before anything else.
+
+   The argument after the skill invocation is the topic. Derive a kebab-case slug from it
+   (e.g., "auth redesign" → `auth-redesign`, "how should we store tokens?" → `token-storage`).
+
+   If no argument was provided, use the **AskUserQuestion tool** to ask:
+   > "What do you want to explore? (I'll use your answer to name the exploration doc.)"
+   Then derive the kebab-case topic from the reply.
+
+3. **Determine the file path**
+
+   ```
+   const date = new Date();
+   const yyyy = date.getFullYear();
+   const mm = String(date.getMonth() + 1).padStart(2, '0');
+   const dd = String(date.getDate()).padStart(2, '0');
+   const folder = path.join('openspec', 'explorations', `${yyyy}-${mm}`);
+   const filename = `exploration-${yyyy}-${mm}-${dd}-${topic}.md`;
+   const docPath = path.join(folder, filename);
+   ```
+
+   Always use `path.join()` — never hardcode slashes. This ensures correct behaviour on Windows.
+
+4. **Check if the topic needs clarification**
+
+   **If the topic is specific enough to investigate** (e.g., "auth redesign", "postgres vs sqlite for CLI tools"): skip to Step 5.
+
+   **If the topic is too vague to investigate meaningfully** (e.g., "performance", "make it better"):
+   - Create the doc with Context only (leave Observations and Rounds empty)
+   - Ask the single most impactful clarifying question in chat
+   - Wait for the user's answer, then ask the next most impactful question if needed
+   - Continue until you have enough context to write useful Observations
+   - Then proceed to Step 5
+
+   Ask one question at a time. Biggest blast radius first.
+
+5. **Create the document and write Observations + Round 1 in one shot**
+
+Write the document with all sections filled:
+
+```markdown
+# Exploration: <topic>
+
+**Date:** <yyyy-mm-dd>
+**Linked change:** none
+
+## Context
+
+<2-3 sentences summarising what the user wants to explore and why>
+
+## Observations
+
+<Your codebase research, diagrams, framing, and key findings. Use ASCII diagrams liberally.
+This is your thinking — what you found, how the system currently works, what constraints matter.>
+
+## Rounds
+
+## Round 1 — <Theme>
+
+### Q1.1 — <Question title>
+
+<1-sentence question or context>
+
+- [x] Recommended option ← recommended: reason
+- [ ] Alternative option
+- [ ] Another alternative
+
+> **Your answer / freetext:**
+>
+
+## Insights & Decisions
+
+<!-- Written at end of session -->
+```
+
+After writing the document, tell the user in chat:
+
+> "**[3–5 bullet findings digest]**
+>
+> Observations and Round 1 are in the doc at `<docPath>` — answer there, then say 'next'."
+
+---
+
+**IMPORTANT: Explore mode is for thinking, not implementing.** You may read files, search code, and investigate the codebase, but you must NEVER write code or implement features. If the user asks you to implement something, remind them to exit explore mode first and create a change proposal. You MAY create EnpalSpec artifacts (proposals, designs, specs) if the user asks—that's capturing thinking, not implementing.
+
+---
+
+## Q&A Rounds
+
+Each round covers **one theme** and contains **2–5 focused questions**. Rounds are written to the exploration file — not asked in chat. Ask one question at a time only when a topic warrants it; otherwise batch 2–5 questions per round.
+
+### Round format
+
+Append each round to the exploration file under `## Rounds` using this format:
+
+```markdown
+## Round N — <Theme>
+
+### QN.M — <Question title>
+
+<1-sentence question or context>
+
+- [x] Recommended option ← recommended: reason
+- [ ] Alternative option
+- [ ] Another alternative
+
+> **Your answer / freetext:**
+>
+```
+
+Pre-mark the recommended option with `[x]`. All other options are `[ ]`. The user edits
+the checkboxes and fills in the freetext field directly.
+
+### After writing a round
+
+After appending the round to the file, tell the user in chat (only):
+
+> "Round N is in the doc — answer there, then say 'next' when ready."
+
+**Stop and wait.** Do NOT repeat the questions in chat.
+
+When the user signals readiness ("next", "done", "answered", etc.):
+1. Read the exploration file
+2. Absorb their answers from the updated checkboxes and freetext fields
+3. Post a brief decision summary in chat: what was decided this round
+4. Either append the next round to the file (if more themes remain) or proceed to wrap-up
+
+**Append only** — do NOT rewrite the file from scratch. **No round limit.**
+
+If questions remain before wrapping up, ask them as a final round — do not list them as open questions.
+
+---
+
+## End-of-Session Wrap-Up
+
+When all rounds are complete and the user signals they are done:
+
+1. Append the `## Insights & Decisions` section to the doc — every decision made, formatted as:
+   "_Decision:_ <what was decided> — _Reason:_ <why>"
+2. Tell the user in chat:
+   > "Exploration doc saved at `<docPath>`. Ready to propose? Run `/enpalspec:propose`."
+
+Do NOT write an `## Open Questions` section. If questions remain, ask them as a round first.
+
+---
+
+## EnpalSpec Awareness
+
+You have full context of the EnpalSpec system. Use it naturally, don't force it.
+
+### Check for context
+
+At the start, quickly check what exists:
+```bash
+enpalspec list --json
+```
+
+If the user mentioned a specific change name, read its artifacts for context before writing Observations.
+
+### When a change exists
+
+If a change is relevant:
+
+1. **Read existing artifacts for context**
+   - `openspec/changes/<name>/proposal.md`
+   - `openspec/changes/<name>/design.md`
+   - `openspec/changes/<name>/tasks.md`
+
+2. **Reference them in Observations**
+   - "Your design mentions using Redis, but we just realized SQLite fits better..."
+
+3. **Offer to capture decisions**
+
+   | Insight Type | Where to Capture |
+   |--------------|------------------|
+   | New requirement discovered | `specs/<capability>/spec.md` |
+   | Requirement changed | `specs/<capability>/spec.md` |
+   | Design decision made | `design.md` |
+   | Scope changed | `proposal.md` |
+   | New work identified | `tasks.md` |
+
+4. **The user decides** - Offer and move on. Don't pressure. Don't auto-capture.
+
+---
+
+## Guardrails
+
+- **Don't implement** - Never write code or implement features. Creating EnpalSpec artifacts is fine, writing application code is not.
+- **Document-first** - Observations, questions, and answers go in the file; chat carries summaries only
+- **One clarifying question at a time** - If topic is vague, ask biggest-blast-radius question first, wait for answer, then next
+- **Append, don't rewrite** - Only append to the document; never rewrite from scratch
+- **No open questions section** - Ask remaining questions as a round instead
+- **Do visualize** - A good ASCII diagram in Observations is worth many paragraphs
+- **Do explore the codebase** - Ground Observations in reality, not theory
+- **Always use path.join()** - Never hardcode path separators; this tool runs on Windows too
