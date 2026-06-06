@@ -3,19 +3,14 @@
   "version": "0.1.0",
   "type": "module",
   "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    }
+    ".": "./dist/index.mjs"
   },
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch"
+    "build": "tsdown",
+    "dev": "tsdown --watch"
   },
   "peerDependencies": {
     "@awesome.me/webawesome": ">=3",
@@ -25,7 +20,7 @@
     "magic-string": "^0.30.0"
   },
   "devDependencies": {
-    "tsup": "^8",
+    "tsdown": "^0.22",
     "typescript": "^6",
     "vite": "^8"
   }
