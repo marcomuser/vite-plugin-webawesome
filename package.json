@@ -1,0 +1,7 @@
+{
+  "name": "vite-plugin-webawesome-root",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ]
+}
