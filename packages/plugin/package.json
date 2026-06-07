@@ -27,7 +27,8 @@
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch",
-    "test": "node --test 'tests/**/*.test.ts'"
+    "test": "node --test 'tests/**/*.test.ts'",
+    "prepublishOnly": "cp ../../README.md ./README.md"
   },
   "engines": {
     "node": ">=24"
