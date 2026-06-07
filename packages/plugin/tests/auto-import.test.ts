@@ -69,15 +69,70 @@ describe('auto-import', () => {
     assert.notEqual(result.map, null)
   })
 
-  it('.vue file → moduleType: js', () => {
+  it('.vue file → no moduleType, import inside script block', () => {
     const result = transform('<wa-button />', '/app/src/Comp.vue')
     assert.ok(result)
-    assert.equal(result.moduleType, 'js')
+    assert.equal(result.moduleType, undefined)
+    const importLine = "import '@awesome.me/webawesome/dist/components/button/button.js'"
+    const scriptStart = result.code.indexOf('<script>')
+    const importPos = result.code.indexOf(importLine)
+    const scriptEnd = result.code.indexOf('</script>')
+    assert.ok(scriptStart !== -1)
+    assert.ok(importPos > scriptStart && importPos < scriptEnd)
   })
 
-  it('.svelte file → moduleType: js', () => {
+  it('.svelte file → no moduleType, import inside script block', () => {
     const result = transform('<wa-button />', '/app/src/Comp.svelte')
     assert.ok(result)
-    assert.equal(result.moduleType, 'js')
+    assert.equal(result.moduleType, undefined)
+    const importLine = "import '@awesome.me/webawesome/dist/components/button/button.js'"
+    const scriptStart = result.code.indexOf('<script>')
+    const importPos = result.code.indexOf(importLine)
+    const scriptEnd = result.code.indexOf('</script>')
+    assert.ok(scriptStart !== -1)
+    assert.ok(importPos > scriptStart && importPos < scriptEnd)
+  })
+
+  it('Vue SFC <script setup> → imports injected inside the block', () => {
+    const src = '<script setup>\nconst msg = "hello"\n</script>\n<template>\n<wa-button />\n</template>'
+    const result = transform(src, '/app/src/Comp.vue')
+    assert.ok(result)
+    assert.equal(result.moduleType, undefined)
+    const importLine = "import '@awesome.me/webawesome/dist/components/button/button.js'"
+    const scriptSetupEnd = result.code.indexOf('<script setup>') + '<script setup>'.length
+    const importPos = result.code.indexOf(importLine)
+    const scriptClose = result.code.indexOf('</script>')
+    assert.ok(importPos > scriptSetupEnd && importPos < scriptClose)
+  })
+
+  it('Vue SFC with no script block → minimal script block prepended', () => {
+    const src = '<template>\n<wa-button />\n</template>'
+    const result = transform(src, '/app/src/Comp.vue')
+    assert.ok(result)
+    assert.equal(result.moduleType, undefined)
+    assert.ok(result.code.startsWith('<script>'))
+    const importLine = "import '@awesome.me/webawesome/dist/components/button/button.js'"
+    const scriptStart = result.code.indexOf('<script>')
+    const importPos = result.code.indexOf(importLine)
+    const scriptEnd = result.code.indexOf('</script>')
+    assert.ok(importPos > scriptStart && importPos < scriptEnd)
+    assert.ok(result.code.includes('<template>'))
+  })
+
+  it('Svelte SFC with script block → imports injected inside the block', () => {
+    const src = '<script>\nlet count = 0\n</script>\n<wa-button />'
+    const result = transform(src, '/app/src/Comp.svelte')
+    assert.ok(result)
+    assert.equal(result.moduleType, undefined)
+    const importLine = "import '@awesome.me/webawesome/dist/components/button/button.js'"
+    const scriptStart = result.code.indexOf('<script>')
+    const importPos = result.code.indexOf(importLine)
+    const scriptEnd = result.code.indexOf('</script>')
+    assert.ok(importPos > scriptStart && importPos < scriptEnd)
+  })
+
+  it('tag in HTML comment → not imported', () => {
+    const result = transform('<!-- <wa-button> -->', '/app/src/Comp.vue')
+    assert.equal(result, null)
   })
 })

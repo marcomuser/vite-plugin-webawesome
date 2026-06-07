@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 
 export function stripComments(src: string): string {
   return src
+    .replace(/<!--[\s\S]*?-->/g, '')
     .replace(/\{\/\*[\s\S]*?\*\/\}/g, '')
     .replace(/\/\*[\s\S]*?\*\//g, '')
     .replace(/\/\/[^\n]*/g, '')

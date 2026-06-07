@@ -42,7 +42,7 @@ The plugin SHALL only apply the transform to files with extensions: `.js`, `.jsx
 - **THEN** the plugin returns `null` without scanning
 
 ### Requirement: Tag detection strips comments before scanning
-The plugin SHALL strip single-line comments (`//`), multi-line comments (`/* */`), and JSX block comments (`{/* */}`) from the source before applying the tag-detection regex, to avoid injecting imports for commented-out components.
+The plugin SHALL strip single-line comments (`//`), multi-line comments (`/* */`), JSX block comments (`{/* */}`), and HTML comments (`<!-- -->`) from the source before applying the tag-detection regex, to avoid injecting imports for commented-out components.
 
 #### Scenario: Tag in single-line comment is ignored
 - **WHEN** a file contains `// <wa-button>` and no other `wa-button` usage
@@ -55,6 +55,10 @@ The plugin SHALL strip single-line comments (`//`), multi-line comments (`/* */`
 #### Scenario: Tag in multi-line comment is ignored
 - **WHEN** a file contains `/* <wa-badge> */` and no other `wa-badge` usage
 - **THEN** no import for `badge.js` is injected
+
+#### Scenario: Tag in HTML comment is ignored
+- **WHEN** a Vue template contains `<!-- <wa-button> -->` and no other `wa-button` usage
+- **THEN** no import for `button.js` is injected
 
 ### Requirement: Source maps are preserved when imports are injected
 The plugin SHALL use `magic-string` to prepend import statements so that a valid source map offset is returned with the transformed code, keeping debugger line numbers accurate.

@@ -7,12 +7,6 @@ export interface WebAwesomeOptions {
   styles?: boolean
 }
 
-type PluginTransformResult = {
-  code: string
-  map: ReturnType<MagicString['generateMap']>
-  moduleType?: string
-}
-
 const ALLOWED_EXTENSIONS = new Set(['.js', '.jsx', '.ts', '.tsx', '.vue', '.svelte'])
 const VUE_SVELTE_EXTENSIONS = new Set(['.vue', '.svelte'])
 
@@ -62,18 +56,22 @@ export function webawesome(options: WebAwesomeOptions = {}): Plugin {
       if (imports.length === 0) return null
 
       const s = new MagicString(src)
-      s.prepend(imports.join('\n') + '\n')
 
-      const result: PluginTransformResult = {
+      if (isVueSvelte) {
+        const scriptMatch = src.match(/<script\b[^>]*>/)
+        if (scriptMatch && scriptMatch.index !== undefined) {
+          s.prependLeft(scriptMatch.index + scriptMatch[0].length, '\n' + imports.join('\n'))
+        } else {
+          s.prepend('<script>\n' + imports.join('\n') + '\n</script>\n')
+        }
+      } else {
+        s.prepend(imports.join('\n') + '\n')
+      }
+
+      return {
         code: s.toString(),
         map: s.generateMap({ hires: true }),
       }
-
-      if (isVueSvelte) {
-        result.moduleType = 'js'
-      }
-
-      return result
     },
   }
 }
