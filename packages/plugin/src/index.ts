@@ -1,7 +1,7 @@
 import type { Plugin, ResolvedConfig } from 'vite'
 import MagicString from 'magic-string'
-import { readFileSync } from 'node:fs'
 import { extname, resolve } from 'node:path'
+import { stripComments, extractTags, tagToImport, resolveEntryFromHtml } from './utils.ts'
 
 export interface WebAwesomeOptions {
   styles?: boolean
@@ -15,42 +15,6 @@ type PluginTransformResult = {
 
 const ALLOWED_EXTENSIONS = new Set(['.js', '.jsx', '.ts', '.tsx', '.vue', '.svelte'])
 const VUE_SVELTE_EXTENSIONS = new Set(['.vue', '.svelte'])
-
-function stripComments(src: string): string {
-  return src
-    .replace(/\{\/\*[\s\S]*?\*\/\}/g, '')
-    .replace(/\/\*[\s\S]*?\*\//g, '')
-    .replace(/\/\/[^\n]*/g, '')
-}
-
-function extractTags(src: string): Set<string> {
-  const stripped = stripComments(src)
-  const tags = new Set<string>()
-  const regex = /<(wa-[a-z0-9-]+)/g
-  let match: RegExpExecArray | null
-  while ((match = regex.exec(stripped)) !== null) {
-    tags.add(match[1])
-  }
-  return tags
-}
-
-function tagToImport(tag: string): string {
-  const name = tag.slice(3)
-  return `import '@awesome.me/webawesome/dist/components/${name}/${name}.js'`
-}
-
-function resolveEntryFromHtml(root: string): string | null {
-  try {
-    const html = readFileSync(resolve(root, 'index.html'), 'utf8')
-    const match = html.match(/<script[^>]+type="module"[^>]+src="([^"]+)"/)
-    if (match) {
-      return resolve(root, match[1].replace(/^\//, ''))
-    }
-  } catch {
-    // index.html not found or unreadable
-  }
-  return null
-}
 
 export function webawesome(options: WebAwesomeOptions = {}): Plugin {
   let entryFilePath: string | null = null
