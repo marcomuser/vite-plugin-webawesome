@@ -1,7 +1,7 @@
 import type { Plugin, ResolvedConfig } from 'vite'
 import MagicString from 'magic-string'
 import { extname, resolve } from 'node:path'
-import { stripComments, extractTags, tagToImport, resolveEntryFromHtml } from './utils.ts'
+import { extractTags, tagToImport, resolveEntryFromHtml } from './utils.ts'
 
 export interface WebAwesomeOptions {
   styles?: boolean
@@ -20,11 +20,16 @@ export function webawesome(options: WebAwesomeOptions = {}): Plugin {
     configResolved(config: ResolvedConfig) {
       if (!options.styles) return
 
-      const rolldownInput = (config.build as any).rolldownOptions?.input
+      const rolldownInput = config.build.rolldownOptions?.input
       if (rolldownInput) {
-        const raw = typeof rolldownInput === 'string'
-          ? rolldownInput
-          : (Object.values(rolldownInput)[0] as string)
+        let raw: string
+        if (typeof rolldownInput === 'string') {
+          raw = rolldownInput
+        } else {
+          const values = Object.values(rolldownInput)
+          if (!values[0]) return
+          raw = values[0]
+        }
         entryFilePath = resolve(config.root, raw)
         return
       }

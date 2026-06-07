@@ -1,13 +1,18 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
+import type { HookHandler, Plugin } from 'vite'
 import { webawesome } from '../src/index.ts'
 
-type TransformResult = { code: string; map: unknown; moduleType?: string } | null
+type TransformFn = HookHandler<NonNullable<Plugin['transform']>>
 
 const plugin = webawesome()
 
-function transform(src: string, id: string): TransformResult {
-  return (plugin.transform as (src: string, id: string) => TransformResult).call({}, src, id)
+function transform(src: string, id: string) {
+  return (plugin.transform as OmitThisParameter<TransformFn>)(src, id) as {
+    code: string
+    map: unknown
+    moduleType?: string
+  } | null
 }
 
 describe('auto-import', () => {
