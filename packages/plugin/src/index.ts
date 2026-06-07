@@ -81,5 +81,3 @@ export function webawesome(options: WebAwesomeOptions = {}): Plugin {
     },
   }
 }
-
-export default webawesome
