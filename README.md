@@ -6,17 +6,17 @@ A Vite plugin for [Web Awesome](https://www.npmjs.com/package/@awesome.me/webawe
 
 ## Usage
 
-Since this is a POC and not yet published to npm, copy the `packages/plugin/src` folder into your project and install the one required dependency:
+Install the plugin:
 
 ```bash
-npm install -D magic-string
+npm install -D vite-plugin-webawesome
 ```
 
-Then add the plugin to your `vite.config.ts`:
+Then add it to your `vite.config.ts`:
 
 ```ts
 import { defineConfig } from 'vite'
-import webawesome from './src/index.ts' // adjust path to where you copied the src folder
+import { webawesome } from 'vite-plugin-webawesome'
 
 export default defineConfig({
   plugins: [
