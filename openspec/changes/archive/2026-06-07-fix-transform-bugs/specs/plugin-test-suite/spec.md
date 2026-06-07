@@ -1,16 +1,4 @@
-### Requirement: Plugin helpers are exported from a dedicated utils module
-The plugin SHALL export `stripComments`, `extractTags`, `tagToImport`, and `resolveEntryFromHtml` from `src/utils.ts` so they can be unit-tested in isolation.
-
-#### Scenario: Helpers importable from utils
-- **WHEN** a test file imports from `../src/utils.js`
-- **THEN** `stripComments`, `extractTags`, `tagToImport`, and `resolveEntryFromHtml` are available as named exports
-
-### Requirement: Test suite runs with no new dependencies
-The test suite SHALL use only `node:test` and `node:assert` (Node.js built-ins) and require no additional devDependencies beyond what is already in `packages/plugin/package.json`.
-
-#### Scenario: npm test succeeds in a clean install
-- **WHEN** `npm ci && npm test` is run in `packages/plugin/`
-- **THEN** all tests pass without installing any package not already listed in `package.json`
+## MODIFIED Requirements
 
 ### Requirement: Auto-import spec scenarios are covered by tests
 The test suite SHALL maintain a test case for every scenario defined in `openspec/specs/auto-import/spec.md`. Behavioural details (tag detection, comment stripping, deduplication, source maps) are specified in that feature spec and SHALL NOT be duplicated here.

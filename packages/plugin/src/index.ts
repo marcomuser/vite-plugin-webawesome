@@ -33,11 +33,12 @@ export function webawesome(options: WebAwesomeOptions = {}): Plugin {
     },
 
     transform(src: string, id: string) {
-      const ext = extname(id.split('?')[0])
+      const rawId = id.split('?')[0]
+      const ext = extname(rawId)
       if (!ALLOWED_EXTENSIONS.has(ext)) return null
       if (id.includes('node_modules')) return null
 
-      const isEntry = options.styles && entryFilePath !== null && id === entryFilePath
+      const isEntry = options.styles && entryFilePath !== null && rawId === entryFilePath
       if (!src.includes('wa-') && !isEntry) return null
 
       const tags = src.includes('wa-') ? extractTags(src) : new Set<string>()

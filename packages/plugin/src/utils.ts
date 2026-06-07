@@ -28,7 +28,7 @@ export function tagToImport(tag: string): string {
 export function resolveEntryFromHtml(root: string): string | null {
   try {
     const html = readFileSync(resolve(root, 'index.html'), 'utf8')
-    const match = html.match(/<script[^>]+type="module"[^>]+src="([^"]+)"/)
+    const match = html.match(/<script\b(?=[^>]*\btype="module")[^>]*\bsrc="([^"]+)"/)
     if (match) {
       return resolve(root, match[1].replace(/^\//, ''))
     }

@@ -57,6 +57,28 @@ describe('styles-injection', () => {
     assert.ok(result.code.includes('webawesome.css'))
   })
 
+  it('entry file ID with HMR timestamp query still receives CSS import', () => {
+    const plugin = webawesome({ styles: true })
+    callConfigResolved(plugin, {
+      root: '/app',
+      build: { rolldownOptions: { input: 'src/main.tsx' } },
+    })
+    const result = callTransform(plugin, '', '/app/src/main.tsx?t=1749293012345')
+    assert.ok(result)
+    assert.ok(result.code.includes('webawesome.css'))
+  })
+
+  it('non-entry file ID with HMR timestamp query does NOT receive CSS import', () => {
+    const plugin = webawesome({ styles: true })
+    callConfigResolved(plugin, {
+      root: '/app',
+      build: { rolldownOptions: { input: 'src/main.tsx' } },
+    })
+    const result = callTransform(plugin, '<wa-button />', '/app/src/Comp.tsx?t=1749293012345')
+    assert.ok(result)
+    assert.ok(!result.code.includes('webawesome.css'))
+  })
+
   describe('entry falls back to index.html', () => {
     let tmpRoot: string
 
@@ -73,6 +95,19 @@ describe('styles-injection', () => {
     })
 
     it('resolves entry from index.html — CSS injected into resolved entry', () => {
+      const plugin = webawesome({ styles: true })
+      callConfigResolved(plugin, { root: tmpRoot, build: {} })
+      const entryId = join(tmpRoot, 'src/main.tsx')
+      const result = callTransform(plugin, '', entryId)
+      assert.ok(result)
+      assert.ok(result.code.includes('webawesome.css'))
+    })
+
+    it('index.html with src before type is matched', () => {
+      writeFileSync(
+        join(tmpRoot, 'index.html'),
+        '<script src="/src/main.tsx" type="module"></script>',
+      )
       const plugin = webawesome({ styles: true })
       callConfigResolved(plugin, { root: tmpRoot, build: {} })
       const entryId = join(tmpRoot, 'src/main.tsx')
