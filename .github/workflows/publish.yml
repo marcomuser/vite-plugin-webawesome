@@ -19,9 +19,9 @@ jobs:
       - run: npm ci
       - run: npm run build
         working-directory: packages/plugin
-      - run: npx tsc --noEmit
+      - run: npx run typecheck
         working-directory: packages/plugin
-      - run: npm test
+      - run: npm run test
         working-directory: packages/plugin
       - run: npm publish --provenance --access public
         working-directory: packages/plugin
