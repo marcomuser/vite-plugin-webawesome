@@ -1,6 +1,22 @@
 {
   "name": "vite-plugin-webawesome",
   "version": "0.1.0",
+  "description": "Vite plugin for Web Awesome",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marcomuser/vite-plugin-webawesome.git"
+  },
+  "author": "Marco Muser",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/marcomuser/vite-plugin-webawesome/issues"
+  },
+  "homepage": "https://github.com/marcomuser/vite-plugin-webawesome#readme",
+  "keywords": [
+    "webawesome",
+    "vite",
+    "plugin"
+  ],
   "type": "module",
   "exports": {
     ".": "./dist/index.mjs"
