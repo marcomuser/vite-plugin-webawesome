@@ -2,7 +2,7 @@
   "extends": "@vue/tsconfig/tsconfig.dom.json",
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
-    "types": ["vite/client", "@awesome.me/webawesome/dist/types/vue/index.d.ts"],
+    "types": ["vite/client", "../../node_modules/@awesome.me/webawesome/dist/types/vue/index.d.ts"],
 
     /* Linting */
     "noUnusedLocals": true,
